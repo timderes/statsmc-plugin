@@ -1,0 +1,8 @@
+author: Tim Deres
+name: StatsMC
+description: A plugin to track and display player statistics in Minecraft.
+main: timderes.statsmc.StatsMc
+version: 1.0
+api-version: 1.13
+commands:
+website: ""
