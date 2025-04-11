@@ -3,7 +3,6 @@ package com.timderes.statsmc;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -17,8 +16,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class StatsPlugin extends JavaPlugin {
     public final int DEFAULT_PORT = 11111;
 
-    Logger ConsoleLogger = Bukkit.getLogger();
-    Configuration config = this.getConfig();
+    Logger consoleLogger = Bukkit.getLogger();
+    FileConfiguration config = this.getConfig();
 
     /**
      * Called when the plugin is disabled.
@@ -34,16 +33,15 @@ public class StatsPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         // TODO: Initialize the plugin here...
-        ConsoleLogger.info("StatsMC API is enabled on port " + config.getInt("port"));
+        consoleLogger.info("StatsMC API is enabled on port " + config.getInt("port"));
     }
 
     /**
-     * Called when the plugin is loaded.
+     * Called when the plugin is loaded but not enabled. Saves, creates and loads
+     * the config file. This method is called before `onEnable()`.
      */
     @Override
     public void onLoad() {
-        FileConfiguration config = this.getConfig();
-
         config.addDefault("port", DEFAULT_PORT);
 
         config.options().copyDefaults(true);
@@ -51,7 +49,7 @@ public class StatsPlugin extends JavaPlugin {
         try {
             saveConfig();
         } catch (Exception e) {
-            ConsoleLogger.warning("Failed to save config file. Please check permissions.");
+            consoleLogger.warning("Failed to save config file. Please check permissions.");
             e.printStackTrace();
         }
 
