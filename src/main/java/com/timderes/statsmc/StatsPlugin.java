@@ -2,7 +2,6 @@ package com.timderes.statsmc;
 
 import java.util.logging.Logger;
 
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -16,24 +15,30 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class StatsPlugin extends JavaPlugin {
     public final int DEFAULT_PORT = 11111;
 
-    Logger consoleLogger = Bukkit.getLogger();
+    Logger consoleLogger = this.getLogger();
     FileConfiguration config = this.getConfig();
 
     /**
-     * Called when the plugin is disabled.
+     * Called when the plugin is disabled. This stops the API to avoid port
+     * conflicts.
      */
     @Override
     public void onDisable() {
-        // TODO: Save stats to files and safely close the api
+        Api.stop();
     }
 
     /**
-     * Called when the plugin is enabled.
+     * Called when the plugin is enabled. If successful, the API will be started.
      */
     @Override
     public void onEnable() {
-        // TODO: Initialize the plugin here...
-        consoleLogger.info("StatsMC API is enabled on port " + config.getInt("port"));
+        try {
+            Api.main(null);
+            consoleLogger.info("StatsMC API is enabled on port " + config.getInt("port"));
+        } catch (Exception e) {
+            consoleLogger.warning("Failed to start StatsMC API. Please check the port and try again.");
+            e.printStackTrace();
+        }
     }
 
     /**
