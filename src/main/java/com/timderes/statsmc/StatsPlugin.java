@@ -25,6 +25,9 @@ public class StatsPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         Api.stop();
+        Web.stop();
+
+        consoleLogger.info("StatsMC API is disabled.");
     }
 
     /**
@@ -37,6 +40,14 @@ public class StatsPlugin extends JavaPlugin {
             consoleLogger.info("StatsMC API is enabled on port " + config.getInt("port"));
         } catch (Exception e) {
             consoleLogger.warning("Failed to start StatsMC API. Please check the port and try again.");
+            e.printStackTrace();
+        }
+        // TODO: Allow to disable web ui
+        try {
+            Web.main(null);
+            consoleLogger.info("StatsMC Web UI is enabled!");
+        } catch (Exception e) {
+            consoleLogger.warning("Failed to start StatsMC Web UI. Please check the port and try again.");
             e.printStackTrace();
         }
     }

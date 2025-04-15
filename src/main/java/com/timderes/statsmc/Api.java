@@ -47,6 +47,7 @@ public class Api {
 
 		// The routes for the API
 		server.createContext("/mcstats", (exchange -> {
+			exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*"); // Allow all origins
 			// Return some basic information about the API
 			final String bukkitVersion = Bukkit.getVersion();
 
@@ -56,6 +57,7 @@ public class Api {
 		}));
 
 		server.createContext("/mcstats/list", (exchange -> {
+			exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*"); // Allow all origins
 			String resp_text = "[";
 			for (Statistic s : Statistic.values())
 				resp_text += "\"" + s.name() + "\",";
@@ -66,6 +68,7 @@ public class Api {
 		}));
 
 		server.createContext("/mcstats/list/materials", (exchange -> {
+			exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*"); // Allow all origins
 			String resp_text = "[";
 			for (Material m : Material.values())
 				resp_text += "\"" + m.name() + "\",";
@@ -76,6 +79,7 @@ public class Api {
 		}));
 
 		server.createContext("/mcstats/list/entities", (exchange -> {
+			exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*"); // Allow all origins
 			String resp_text = "[";
 			for (EntityType e : EntityType.values())
 				resp_text += "\"" + e.name() + "\",";
@@ -86,6 +90,7 @@ public class Api {
 		}));
 
 		server.createContext("/mcstats/all_players", (exchange -> {
+			exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*"); // Allow all origins
 			Map<String, String> params = queryToMap(exchange.getRequestURI().getQuery());
 			if (params == null || !params.containsKey(STAT_ARG)) {
 				doBadResponse("Missing '" + STAT_ARG + "' argument", exchange);
