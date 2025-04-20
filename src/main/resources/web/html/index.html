@@ -4,14 +4,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StatsMC - Web</title>
+    <title>StatsMC - Web-Dashboard</title>
     <link rel="stylesheet" href="css/main.css" />
-    <meta http-equiv="refresh" content="30" />
 </head>
 
 <body>
-    <h1>StatsMC Jumps Leaderboard (REFRESH: 30s)</h1>
-    <div id="stats"></div>
+    <h1>StatsMC Web-Dashboard</h1>
+    <script defer type="module">
+        import { fetchData } from "../js/utils/fetchData.js";
+        const PORT = window.location.port || 33333;
+        const PROTOCOL = window.location.protocol === "https:" ? "https://" : "http://";
+        const API_ROUTE = `${PROTOCOL}${window.location.hostname}:${PORT}/api/`;
+
+        fetchData(API_ROUTE)
+            .then(data => {
+                // Display server version
+                const serverVersionElement = document.createElement("p");
+                serverVersionElement.textContent = `Server Version: ${data.server_version}`;
+                document.body.appendChild(serverVersionElement);
+            })
+            .catch(error => {
+                console.error("Error fetching data:", error);
+                const errorElement = document.createElement("p");
+                errorElement.textContent = "Error fetching data. Please try again later.";
+                document.body.appendChild(errorElement);
+            });
+    </script>
 </body>
 
 </html>
