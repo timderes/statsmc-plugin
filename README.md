@@ -4,8 +4,6 @@
 
 > Plugin is currently work-in-progress. Some features may not work as expected. Please report any issues you encounter. **Web interface is planned as a future update!**
 
-This repository is a fork of [StatsMC-plugin](https://github.com/Affenmilchmann/StatsMC-plugin). The original plugin was created by [Affenmilchmann](https://github.com/Affenmilchmann/).
-
 ## How to use
 
 1. Download the `StatsMC1-x.jar` file from the releases page.
@@ -175,6 +173,10 @@ This plugin is not affiliated with Mojang Studios or Microsoft. It is an indepen
 
 **Created following the [Minecraft Usage Guidelines](https://www.minecraft.net/en-us/terms#usage-guidelines).**
 
-### License
+## Credits
+
+This project started as a fork of [StatsMC-plugin](https://github.com/afmigoo/StatsMC-plugin), which was created by [afmigoo](https://github.com/afmigoo/).
+
+## License
 
 This project is licensed under the MIT License.
