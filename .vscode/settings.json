@@ -4,5 +4,6 @@
   "java.jdt.ls.vmargs": "-Dfile.encoding=UTF-8",
   // "java.jdt.ls.java.home": "C:\\jdk-24",
   "javac-linter.javac": "javac -Dfile.encoding=UTF-8",
-  "java.configuration.updateBuildConfiguration": "interactive"
+  "java.configuration.updateBuildConfiguration": "interactive",
+  "java.compile.nullAnalysis.mode": "automatic"
 }

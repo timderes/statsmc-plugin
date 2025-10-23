@@ -1,0 +1,16 @@
+{
+  "recommendations": [
+    "aaron-bond.better-comments",
+    "github.copilot",
+    "github.copilot-chat",
+    "vscjava.vscode-java-debug",
+    "usernamehw.errorlens",
+    "vscjava.vscode-java-pack",
+    "vscjava.vscode-gradle",
+    "redhat.java",
+    "vscjava.vscode-maven",
+    "vscjava.vscode-java-dependency",
+    "vscjava.vscode-java-test"
+  ],
+  "unwantedRecommendations": []
+}
