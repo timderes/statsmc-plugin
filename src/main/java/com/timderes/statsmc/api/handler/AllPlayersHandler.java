@@ -12,6 +12,7 @@ import org.bukkit.entity.EntityType;
 
 import java.io.IOException;
 import java.util.Map;
+import com.timderes.statsmc.utils.JsonResponse;
 
 public class AllPlayersHandler extends BaseHandler {
     private static final String STAT_ARG = "statistic";
@@ -58,16 +59,7 @@ public class AllPlayersHandler extends BaseHandler {
             }
 
             Map<String, Integer> stats = GetAllPlayerStats.getPlayerStatistics(curr_stat, curr_material, curr_ent);
-            // build simple JSON
-            StringBuilder resp = new StringBuilder("{");
-            for (var e : stats.entrySet()) {
-                resp.append('"').append(e.getKey()).append('"').append(':').append(e.getValue()).append(',');
-            }
-            if (resp.charAt(resp.length() - 1) == ',')
-                resp.setLength(resp.length() - 1);
-            resp.append('}');
-
-            sendResponse(exchange, 200, resp.toString());
+            sendResponse(exchange, 200, JsonResponse.toJson(stats));
         } catch (Exception e) {
             sendError(exchange, 500, "Internal Server Error");
             e.printStackTrace();
