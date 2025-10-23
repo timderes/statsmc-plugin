@@ -37,6 +37,25 @@ Currently the plugin only officially supports Minecraft 1.21.x. However, it may 
 
 **This is the first time I am creating a plugin for Minecraft. So, if you see any mistakes in the code or have any suggestions for improvements, please feel free to contribute! :)**
 
+## Building from Source
+
+### Prerequisites
+
+- [Java Development Kit](https://www.oracle.com/java/technologies/downloads/)
+- [Apache Maven](https://maven.apache.org/)
+- (Optional) [Crafty Controller](https://craftycontrol.com/) (For testing the plugin on a local server)
+
+To build the plugin from source
+
+```bash
+mvn package
+```
+
+## Active the plugin on your server
+
+1. Copy the generated `StatsMC1-x.jar` file from the `target` directory to your server's `plugins` folder.
+2. Start or restart your Minecraft server.
+
 ## Disclaimer
 
 This plugin is not affiliated with Mojang Studios or Microsoft. It is an independent project created by the community. The plugin is provided "as-is" without any warranties or guarantees. Use it at your own risk.
