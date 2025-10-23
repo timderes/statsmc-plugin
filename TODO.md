@@ -4,3 +4,4 @@
 - [ ] Improve the overall code quality and structure of the project.
 - [ ] Implement the web interface for viewing player statistics.
 - [ ] Add more API endpoints for retrieving specific player statistics, blocks, entities, advancements, and leaderboards.
+- [ ] Set build output to the local Minecraft server's plugins folder for easier testing.

@@ -2,6 +2,7 @@ package com.timderes.statsmc;
 
 import java.util.logging.Logger;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -24,10 +25,13 @@ public class StatsPlugin extends JavaPlugin {
      */
     @Override
     public void onDisable() {
-        Api.stop();
-        Web.stop();
-
-        consoleLogger.info("StatsMC API is disabled.");
+        try {
+            StatsServer.stop();
+            consoleLogger.info("StatsMC is successfully disabled!");
+        } catch (Exception e) {
+            consoleLogger.warning("Failed to stop StatsMC!");
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -36,18 +40,20 @@ public class StatsPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         try {
-            Api.main(null);
-            consoleLogger.info("StatsMC API is enabled on port " + config.getInt("port"));
+            int apiPort = config.getInt("port");
+            int gameServerPort = Bukkit.getPort();
+
+            if (apiPort == gameServerPort) {
+                consoleLogger.warning("Port " + apiPort
+                        + " is already in use by the game server! Please change the port in the config.");
+                return;
+            }
+
+            StatsServer.start(apiPort, this.consoleLogger);
+            consoleLogger.info("StatsMC is enabled on port " + config.getInt("port"));
+
         } catch (Exception e) {
-            consoleLogger.warning("Failed to start StatsMC API. Please check the port and try again.");
-            e.printStackTrace();
-        }
-        // TODO: Allow to disable web ui
-        try {
-            Web.main(null);
-            consoleLogger.info("StatsMC Web UI is enabled!");
-        } catch (Exception e) {
-            consoleLogger.warning("Failed to start StatsMC Web UI. Please check the port and try again.");
+            consoleLogger.warning("Failed to start StatsMC! Please check the port and try again.");
             e.printStackTrace();
         }
     }

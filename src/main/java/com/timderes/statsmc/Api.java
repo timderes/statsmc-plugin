@@ -1,31 +1,28 @@
 package com.timderes.statsmc;
 
+import com.timderes.statsmc.utils.GetAllPlayerStats;
+import com.timderes.statsmc.utils.QueryStringToMap;
+
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
+
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.sun.net.httpserver.HttpServer;
-import com.sun.net.httpserver.HttpExchange;
-
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.entity.EntityType;
-import org.bukkit.OfflinePlayer;
+import java.util.stream.Stream;
+import java.util.stream.Collectors;
+
 import org.bukkit.Statistic;
+import org.bukkit.advancement.AdvancementProgress;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
-/**
- * This class provides a simple HTTP server that listens for requests and
- * responds with player statistics from a Minecraft server. It uses the
- * HttpServer class from the com.sun.net.httpserver package to create the server
- * and handle requests.
- */
-public class Api {
+public class Api extends StatsServer {
 	private static final String STAT_ARG = "statistic";
 	private static final String BLOCK_TYPE_ARG = "block_type";
 	private static final String ENTITY_TYPE_ARG = "entity_type";
@@ -35,65 +32,37 @@ public class Api {
 	private static final List<Statistic> requires_material = Arrays.asList(Statistic.BREAK_ITEM, Statistic.CRAFT_ITEM,
 			Statistic.DROP, Statistic.MINE_BLOCK, Statistic.PICKUP, Statistic.USE_ITEM);
 
-	private static int SERVER_PORT = StatsPlugin.getPlugin(StatsPlugin.class).getConfig().getInt("port", 11111);
-
-	private static HttpServer server = null;
-
-	/**
-	 * 
-	 */
-	public static void main(String[] args) throws Exception {
-		server = HttpServer.create(new InetSocketAddress(SERVER_PORT), 0);
-
-		// The routes for the API
-		server.createContext("/mcstats", (exchange -> {
+	static class ApiMaterialHandler implements HttpHandler {
+		@Override
+		public void handle(HttpExchange exchange) throws IOException {
 			exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*"); // Allow all origins
-			// Return some basic information about the API
-			final String bukkitVersion = Bukkit.getVersion();
 
-			// Return JSON response with the server version and API version
-			String resp_text = "{ \"server_version\": \"" + bukkitVersion + "\" }";
-			doOkResponse(resp_text, exchange);
-		}));
-
-		server.createContext("/mcstats/list", (exchange -> {
-			exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*"); // Allow all origins
-			String resp_text = "[";
-			for (Statistic s : Statistic.values())
-				resp_text += "\"" + s.name() + "\",";
-			if (resp_text.endsWith(","))
-				resp_text = resp_text.substring(0, resp_text.length() - 1);
-			resp_text += "]";
-			doOkResponse(resp_text, exchange);
-		}));
-
-		server.createContext("/mcstats/list/materials", (exchange -> {
-			exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*"); // Allow all origins
 			String resp_text = "[";
 			for (Material m : Material.values())
 				resp_text += "\"" + m.name() + "\",";
 			if (resp_text.endsWith(","))
 				resp_text = resp_text.substring(0, resp_text.length() - 1);
 			resp_text += "]";
-			doOkResponse(resp_text, exchange);
-		}));
 
-		server.createContext("/mcstats/list/entities", (exchange -> {
-			exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*"); // Allow all origins
-			String resp_text = "[";
-			for (EntityType e : EntityType.values())
-				resp_text += "\"" + e.name() + "\",";
-			if (resp_text.endsWith(","))
-				resp_text = resp_text.substring(0, resp_text.length() - 1);
-			resp_text += "]";
-			doOkResponse(resp_text, exchange);
-		}));
+			exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+			exchange.sendResponseHeaders(200, resp_text.getBytes().length);
 
-		server.createContext("/mcstats/all_players", (exchange -> {
+			try (OutputStream os = exchange.getResponseBody()) {
+				os.write(resp_text.getBytes());
+				exchange.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	static class ApiAllPlayersHandler implements HttpHandler {
+		@Override
+		public void handle(HttpExchange exchange) throws IOException {
 			exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*"); // Allow all origins
-			Map<String, String> params = queryToMap(exchange.getRequestURI().getQuery());
+
+			Map<String, String> params = QueryStringToMap.convert(exchange.getRequestURI().getQuery());
 			if (params == null || !params.containsKey(STAT_ARG)) {
-				doBadResponse("Missing '" + STAT_ARG + "' argument", exchange);
 				return;
 			}
 
@@ -104,8 +73,8 @@ public class Api {
 			try {
 				curr_stat = Statistic.valueOf(params.get(STAT_ARG));
 			} catch (Exception e) {
-				doBadResponse("Invalid '" + STAT_ARG + "' value", exchange);
-				return;
+				throw e;
+
 			}
 
 			try {
@@ -122,111 +91,115 @@ public class Api {
 
 			if (requires_material.contains(curr_stat)) {
 				if (!params.containsKey(BLOCK_TYPE_ARG)) {
-					doBadResponse(curr_stat.name() + " requres '" + BLOCK_TYPE_ARG + "' argument", exchange);
+
 					return;
 				} else if (curr_material == null) {
-					doBadResponse("Invalid '" + BLOCK_TYPE_ARG + "' value", exchange);
 					return;
 				}
 			}
 			if (requires_entity.contains(curr_stat)) {
 				if (!params.containsKey(ENTITY_TYPE_ARG)) {
-					doBadResponse(curr_stat.name() + " requres '" + ENTITY_TYPE_ARG + "' argument", exchange);
 					return;
 				} else if (curr_ent == null) {
-					doBadResponse("Invalid '" + ENTITY_TYPE_ARG + "' value", exchange);
 					return;
 				}
 			}
 
 			String respText = "{";
-			for (var entry : getAllPlayersStats(curr_stat, curr_material, curr_ent).entrySet())
+			for (var entry : GetAllPlayerStats.getPlayerStatistics(curr_stat, curr_material, curr_ent).entrySet())
 				respText += "\"" + entry.getKey() + "\":" + entry.getValue() + ",";
 			if (respText.endsWith(","))
 				respText = respText.substring(0, respText.length() - 1);
 			respText += "}";
 
-			doOkResponse(respText, exchange);
-		}));
-		server.setExecutor(null); // creates a default executor
-		server.start();
-	}
+			exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+			exchange.sendResponseHeaders(200, respText.getBytes().length);
 
-	static public Map<String, Integer> getAllPlayersStats(Statistic stat_name, Material material, EntityType entity) {
-		Map<String, Integer> out = new HashMap<>();
-		for (Player p : Bukkit.getOnlinePlayers()) {
-			if (material != null)
-				out.put(p.getName(), p.getStatistic(stat_name, material));
-			else if (entity != null)
-				out.put(p.getName(), p.getStatistic(stat_name, entity));
-			else
-				out.put(p.getName(), p.getStatistic(stat_name));
-		}
-		for (OfflinePlayer p : Bukkit.getOfflinePlayers()) {
-			if (material != null)
-				out.put(p.getName(), p.getStatistic(stat_name, material));
-			else if (entity != null)
-				out.put(p.getName(), p.getStatistic(stat_name, entity));
-			else
-				out.put(p.getName(), p.getStatistic(stat_name));
-		}
-		return out;
-	}
-
-	static private void doOkResponse(String data, HttpExchange exchange) throws IOException {
-		doResponse(data, "application/json", true, exchange);
-	}
-
-	static private void doBadResponse(String data, HttpExchange exchange) throws IOException {
-		doResponse("{\"error\": \"" + data + "\"}", "application/json", false, exchange);
-	}
-
-	static private void doResponse(String data, String format, Boolean is_good, HttpExchange exchange)
-			throws IOException {
-		exchange.getResponseHeaders().set("Content-Type", format);
-		exchange.sendResponseHeaders(is_good ? 200 : 400, data.getBytes().length);
-
-		OutputStream output = exchange.getResponseBody();
-		output.write(data.getBytes());
-		output.flush();
-		exchange.close();
-	}
-
-	static private Map<String, String> queryToMap(String query) {
-		if (query == null) {
-			return null;
-		}
-		Map<String, String> result = new HashMap<>();
-		for (String param : query.split("&")) {
-			String[] entry = param.split("=");
-			if (entry.length > 1) {
-				result.put(entry[0], entry[1]);
-			} else {
-				result.put(entry[0], "");
+			try (OutputStream os = exchange.getResponseBody()) {
+				os.write(respText.getBytes());
+				exchange.close();
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
-		return result;
+
 	}
 
-	public static void logMessage(String text, Boolean is_fatal) {
-		if (is_fatal)
-			Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.RED + "[StatsMC] " + text);
-		else
-			Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.GREEN + "[StatsMC] " + text);
-	}
+	static class ApiPlayerAdvancementsHandler implements HttpHandler {
+		@Override
+		public void handle(HttpExchange exchange) throws IOException {
+			exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*"); // Allow all origins
 
-	public static void logMessage(String text) {
-		logMessage(text, false);
-	}
+			// Get player name from query string
+			Map<String, String> params = QueryStringToMap.convert(exchange.getRequestURI().getQuery());
+			if (params == null || !params.containsKey("player")) {
+				exchange.sendResponseHeaders(400, -1); // Bad Request
+				return;
+			}
 
-	/**
-	 * Stops the server. This method is called when the plugin is disabled to avoid
-	 * port conflicts on server reload.
-	 */
-	public static void stop() {
-		if (server != null) {
-			server.stop(0);
+			String playerName = params.get("player");
+
+			if (playerName == null || playerName.isEmpty()) {
+				exchange.sendResponseHeaders(400, -1); // Bad Request
+				return;
+			}
+
+			List<Player> players = Stream.concat(Bukkit.getOnlinePlayers().stream(),
+					Arrays.stream(Bukkit.getOfflinePlayers()).filter(offlinePlayer -> offlinePlayer instanceof Player)
+							.map(offlinePlayer -> (Player) offlinePlayer))
+					.collect(Collectors.toList());
+
+			// if plyer is in the list of players proceed to get the advancements
+			if (players.stream().noneMatch(player -> player.getName().equalsIgnoreCase(playerName))) {
+				exchange.sendResponseHeaders(404, -1); // Not Found (Player not found)
+				return;
+			}
+
+			// Check if the player has ever joined the server
+			Player player = Bukkit.getPlayerExact(playerName);
+
+			// Loop over all advancements and get the ones the player has
+			StringBuilder respText = new StringBuilder("{");
+
+			var iterator = Bukkit.advancementIterator();
+			while (iterator.hasNext()) {
+				var advancement = iterator.next();
+				AdvancementProgress progress = player.getAdvancementProgress(advancement);
+				if (progress.isDone()) {
+					String dateCompleted = progress.getAwardedCriteria().stream().map(progress::getDateAwarded)
+							.filter(java.util.Objects::nonNull).map(java.util.Date::toString).findFirst()
+							.orElse("unknown");
+					respText.append("\"").append(advancement.getKey().toString())
+							.append("\":{\"completed\":true,\"date\":\"").append(dateCompleted)
+							.append("\",\"awardedCriteria\":")
+							.append(progress.getAwardedCriteria().toString().replaceAll("\"", "\\\\\"")).append("},");
+				} else {
+					respText.append("\"").append(advancement.getKey().toString())
+							.append("\":{\"completed\":false,\"awardedCriteria\":")
+							.append(progress.getAwardedCriteria().toString().replaceAll("\"", "\\\\\"")).append("},");
+				}
+			}
+
+			// Remove the trailing comma to ensure valid JSON
+			if (respText.charAt(respText.length() - 1) == ',') {
+				respText.setLength(respText.length() - 1);
+			}
+
+			if (respText.charAt(respText.length() - 1) == ',') {
+				respText.setLength(respText.length() - 1); // Remove trailing comma
+			}
+			respText.append("}");
+
+			// Send response
+			exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+			exchange.sendResponseHeaders(200, respText.toString().getBytes().length);
+
+			try (OutputStream os = exchange.getResponseBody()) {
+				os.write(respText.toString().getBytes());
+				exchange.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
-
 }
