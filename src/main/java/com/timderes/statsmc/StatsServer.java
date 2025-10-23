@@ -3,7 +3,10 @@ package com.timderes.statsmc;
 import com.sun.net.httpserver.HttpServer;
 
 import com.timderes.statsmc.api.handler.RootHandler;
-import com.timderes.statsmc.Web.WebRootHandler;
+import com.timderes.statsmc.api.handler.MaterialsHandler;
+import com.timderes.statsmc.api.handler.AllPlayersHandler;
+import com.timderes.statsmc.api.handler.AdvancementsHandler;
+import com.timderes.statsmc.web.WebRootHandler;
 
 import java.net.InetSocketAddress;
 
@@ -27,9 +30,9 @@ public class StatsServer {
 
             server.createContext("/", new WebRootHandler());
             server.createContext("/api", new RootHandler());
-            // server.createContext("/api/materials", new ApiMaterialHandler());
-            // server.createContext("/api/allPlayers", new ApiAllPlayersHandler());
-            // server.createContext("/api/advancement", new ApiPlayerAdvancementsHandler());
+            server.createContext("/api/materials", new MaterialsHandler());
+            server.createContext("/api/allPlayers", new AllPlayersHandler());
+            server.createContext("/api/advancement", new AdvancementsHandler());
 
             server.start();
         } catch (Exception e) {
