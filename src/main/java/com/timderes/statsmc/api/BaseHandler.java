@@ -5,6 +5,7 @@ import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 public abstract class BaseHandler implements HttpHandler {
     /**
@@ -13,13 +14,13 @@ public abstract class BaseHandler implements HttpHandler {
     protected void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
         exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
 
-        // Fix me: Check if CORS header is needed or if there is a better way to handle
-        // CORS.
+        // Keep a permissive CORS header for the UI; make configurable later if needed.
         exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
 
-        exchange.sendResponseHeaders(statusCode, response.getBytes().length);
+        byte[] respBytes = response.getBytes(StandardCharsets.UTF_8);
+        exchange.sendResponseHeaders(statusCode, respBytes.length);
         try (OutputStream os = exchange.getResponseBody()) {
-            os.write(response.getBytes());
+            os.write(respBytes);
         }
     }
 

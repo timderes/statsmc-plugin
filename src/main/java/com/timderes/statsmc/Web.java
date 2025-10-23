@@ -8,8 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
-import java.nio.file.Files;
+
 import java.util.Objects;
 
 public class Web extends StatsServer {
@@ -17,7 +16,6 @@ public class Web extends StatsServer {
     static class WebRootHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            final String domain = "https://" + exchange.getLocalAddress().getHostString();
             byte[] bytes;
             String path;
 
@@ -31,14 +29,28 @@ public class Web extends StatsServer {
 
             OutputStream os = exchange.getResponseBody();
             exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET");
-            exchange.getResponseHeaders().set("Access-Control-Allow-Origin", domain);
+            // Allow all origins for the web UI; make configurable later if needed.
+            exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
             try {
                 ClassLoader classLoader = getClass().getClassLoader();
                 InputStream is = Objects.requireNonNull(classLoader.getResourceAsStream("web" + path));
                 bytes = is.readAllBytes();
-                String mimeType = Files.probeContentType(Paths.get(path));
-                exchange.getResponseHeaders().set("Content-Type",
-                        mimeType != null ? mimeType : "application/octet-stream");
+                String mimeType = "application/octet-stream";
+                int idx = path.lastIndexOf('.');
+                if (idx != -1 && idx < path.length() - 1) {
+                    String ext = path.substring(idx + 1).toLowerCase();
+                    switch (ext) {
+                    case "html" -> mimeType = "text/html; charset=UTF-8";
+                    case "css" -> mimeType = "text/css; charset=UTF-8";
+                    case "js" -> mimeType = "application/javascript; charset=UTF-8";
+                    case "json" -> mimeType = "application/json; charset=UTF-8";
+                    case "png" -> mimeType = "image/png";
+                    case "jpg", "jpeg" -> mimeType = "image/jpeg";
+                    case "svg" -> mimeType = "image/svg+xml";
+                    default -> mimeType = "application/octet-stream";
+                    }
+                }
+                exchange.getResponseHeaders().set("Content-Type", mimeType);
                 exchange.sendResponseHeaders(200, bytes.length);
                 os.write(bytes);
             } catch (NullPointerException e) {

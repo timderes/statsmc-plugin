@@ -8,6 +8,7 @@ import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,19 +38,22 @@ public class Api extends StatsServer {
 		public void handle(HttpExchange exchange) throws IOException {
 			exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*"); // Allow all origins
 
-			String resp_text = "[";
-			for (Material m : Material.values())
-				resp_text += "\"" + m.name() + "\",";
-			if (resp_text.endsWith(","))
-				resp_text = resp_text.substring(0, resp_text.length() - 1);
-			resp_text += "]";
+			StringBuilder sb = new StringBuilder();
+			sb.append('[');
+			for (Material m : Material.values()) {
+				sb.append('"').append(m.name()).append("\",");
+			}
+			if (sb.length() > 1 && sb.charAt(sb.length() - 1) == ',') {
+				sb.setLength(sb.length() - 1);
+			}
+			sb.append(']');
 
+			byte[] respBytes = sb.toString().getBytes(StandardCharsets.UTF_8);
 			exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
-			exchange.sendResponseHeaders(200, resp_text.getBytes().length);
+			exchange.sendResponseHeaders(200, respBytes.length);
 
 			try (OutputStream os = exchange.getResponseBody()) {
-				os.write(resp_text.getBytes());
-				exchange.close();
+				os.write(respBytes);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -63,6 +67,12 @@ public class Api extends StatsServer {
 
 			Map<String, String> params = QueryStringToMap.convert(exchange.getRequestURI().getQuery());
 			if (params == null || !params.containsKey(STAT_ARG)) {
+				String err = "{\"error\": \"missing 'statistic' query parameter\"}";
+				exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+				exchange.sendResponseHeaders(400, err.getBytes(StandardCharsets.UTF_8).length);
+				try (OutputStream os = exchange.getResponseBody()) {
+					os.write(err.getBytes(StandardCharsets.UTF_8));
+				}
 				return;
 			}
 
@@ -73,7 +83,13 @@ public class Api extends StatsServer {
 			try {
 				curr_stat = Statistic.valueOf(params.get(STAT_ARG));
 			} catch (Exception e) {
-				throw e;
+				String err = "{\"error\": \"invalid 'statistic' value\"}";
+				exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+				exchange.sendResponseHeaders(422, err.getBytes(StandardCharsets.UTF_8).length);
+				try (OutputStream os = exchange.getResponseBody()) {
+					os.write(err.getBytes(StandardCharsets.UTF_8));
+				}
+				return;
 
 			}
 
@@ -90,17 +106,24 @@ public class Api extends StatsServer {
 			}
 
 			if (requires_material.contains(curr_stat)) {
-				if (!params.containsKey(BLOCK_TYPE_ARG)) {
-
-					return;
-				} else if (curr_material == null) {
+				if (!params.containsKey(BLOCK_TYPE_ARG) || curr_material == null) {
+					String err = "{\"error\": \"missing or invalid 'block_type' parameter for this statistic\"}";
+					exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+					exchange.sendResponseHeaders(422, err.getBytes(StandardCharsets.UTF_8).length);
+					try (OutputStream os = exchange.getResponseBody()) {
+						os.write(err.getBytes(StandardCharsets.UTF_8));
+					}
 					return;
 				}
 			}
 			if (requires_entity.contains(curr_stat)) {
-				if (!params.containsKey(ENTITY_TYPE_ARG)) {
-					return;
-				} else if (curr_ent == null) {
+				if (!params.containsKey(ENTITY_TYPE_ARG) || curr_ent == null) {
+					String err = "{\"error\": \"missing or invalid 'entity_type' parameter for this statistic\"}";
+					exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+					exchange.sendResponseHeaders(422, err.getBytes(StandardCharsets.UTF_8).length);
+					try (OutputStream os = exchange.getResponseBody()) {
+						os.write(err.getBytes(StandardCharsets.UTF_8));
+					}
 					return;
 				}
 			}
@@ -113,11 +136,10 @@ public class Api extends StatsServer {
 			respText += "}";
 
 			exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
-			exchange.sendResponseHeaders(200, respText.getBytes().length);
+			exchange.sendResponseHeaders(200, respText.getBytes(StandardCharsets.UTF_8).length);
 
 			try (OutputStream os = exchange.getResponseBody()) {
-				os.write(respText.getBytes());
-				exchange.close();
+				os.write(respText.getBytes(StandardCharsets.UTF_8));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
