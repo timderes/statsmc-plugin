@@ -1,12 +1,11 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "./index.css";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { routeTree } from "./routeTree.gen";
+import "bootstrap/dist/css/bootstrap.min.css";
 
-// Set up a Router instance
 const router = createRouter({
   routeTree,
   defaultPreload: "intent",
@@ -16,7 +15,7 @@ const router = createRouter({
 
 const queryClient = new QueryClient();
 
-// Register things for typesafety
+// Register for typesafety
 declare module "@tanstack/react-router" {
   interface Register {
     router: typeof router;

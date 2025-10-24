@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { IconCloudRain, IconCloudStorm, IconSun } from "@tabler/icons-react";
+import { Card, CardGroup } from "react-bootstrap";
 
 export const Route = createFileRoute("/")({
   component: Dashboard,
@@ -75,13 +76,15 @@ function Dashboard() {
   if (isError) return <div>Error: {error.message}</div>;
 
   return (
-    <div className="App">
-      <h1>StatsMC Dashboard</h1>
-      <div style={{ display: "flex", gap: 16 }}>
+    <>
+      <h1 className="fw-bold">"{serverInfo?.server_name}" Dashboard</h1>
+      <CardGroup>
         {serverInfo?.worlds.map((world) => (
-          <div key={world.name}>
-            <h2>{world.name}</h2>
-            <p>Weather: {getWeatherIcon(world.weather)}</p>
+          <Card body key={world.name}>
+            <p className="fs-3 fw-bold">{world.name}</p>
+            <p className="d-flex align-items-center gap-1">
+              Weather: {getWeatherIcon(world.weather)}
+            </p>
             <p>
               Time: {getTimeOfDay(world.time)} ({world.time})
             </p>
@@ -90,10 +93,10 @@ function Dashboard() {
                 <li key={player}>{player}</li>
               ))}
             </ul>
-          </div>
+          </Card>
         ))}
-      </div>
+      </CardGroup>
       <TanStackRouterDevtools position="top-right" />
-    </div>
+    </>
   );
 }

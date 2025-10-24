@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import "../assets/App.css";
 
 export const Route = createFileRoute("/player")({
   component: PlayerPage,
