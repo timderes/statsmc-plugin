@@ -1,0 +1,26 @@
+{
+  "name": "statsmc",
+  "version": "0.0.0",
+  "private": true,
+  "description": "This plugin creates a API and web interface that returns player statistics for your Minecraft server.",
+  "homepage": "https://github.com/timderes/statsmc-plugin#readme",
+  "bugs": {
+    "url": "https://github.com/timderes/statsmc-plugin/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/timderes/statsmc-plugin.git"
+  },
+  "license": "MIT",
+  "author": "Tim Deres",
+  "contributes": {},
+  "type": "module",
+  "scripts": {
+    "build": "npm run build:web && npm run build:jar",
+    "build:web": "vite build --config src/main/web/vite.config.ts",
+    "build:jar": "mvn clean package"
+  },
+  "workspaces": [
+    "src/main/web"
+  ]
+}

@@ -32,3 +32,8 @@ replay_pid*
 
 /bin
 /target
+
+# These files are built by vite and served from here in the JAR file
+src/main/resources/web/*
+
+node_modules/

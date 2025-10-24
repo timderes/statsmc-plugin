@@ -16,9 +16,9 @@ public class WebRootHandler implements HttpHandler {
         String path;
 
         if (exchange.getRequestURI().getPath().equals("/")) {
-            path = "/html/index.html";
+            path = "/index.html";
         } else if (exchange.getRequestURI().getPath().contains(".html")) {
-            path = "/html" + exchange.getRequestURI().getPath();
+            path = "/" + exchange.getRequestURI().getPath();
         } else {
             path = exchange.getRequestURI().getPath();
         }
