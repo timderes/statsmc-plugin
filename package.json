@@ -23,7 +23,6 @@
   "workspaces": [
     "src/main/web"
   ],
-  "devDependencies": {
-    "@tanstack/router-plugin": "^1.133.27"
-  }
+  "dependencies": {},
+  "devDependencies": {}
 }

@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { IconCloudRain, IconCloudStorm, IconSun } from "@tabler/icons-react";
 
 export const Route = createFileRoute("/")({
   component: Dashboard,
@@ -9,6 +10,36 @@ export const Route = createFileRoute("/")({
     return <>NOT FOUND!</>;
   },
 });
+
+const getTimeOfDay = (time: World["time"]) => {
+  switch (true) {
+    case time > 23000:
+      return "Sunrise";
+    case time > 18000:
+      return "Midnight";
+    case time > 13000:
+      return "Night";
+    case time > 12000:
+      return "Sunset";
+    case time > 6000:
+      return "Noon";
+    case time > 2000:
+      return "Day";
+    default:
+      return "Morning";
+  }
+};
+
+const getWeatherIcon = (currentWeather: World["weather"]) => {
+  switch (currentWeather) {
+    case "clear":
+      return <IconSun />;
+    case "rain":
+      return <IconCloudRain />;
+    case "thunder":
+      return <IconCloudStorm />;
+  }
+};
 
 function Dashboard() {
   const queryClient = useQueryClient();
@@ -50,12 +81,15 @@ function Dashboard() {
         {serverInfo?.worlds.map((world) => (
           <div key={world.name}>
             <h2>{world.name}</h2>
+            <p>Weather: {getWeatherIcon(world.weather)}</p>
             <p>
-              Players: {world.current_players.join(", ") || "No players online"}
+              Time: {getTimeOfDay(world.time)} ({world.time})
             </p>
-            <p>Environment: {world.environment}</p>
-            <p>Difficulty: {world.difficulty}</p>
-            <p>PvP: {world.pvp ? "Enabled" : "Disabled"}</p>
+            <ul>
+              {world.current_players.map((player) => (
+                <li key={player}>{player}</li>
+              ))}
+            </ul>
           </div>
         ))}
       </div>
