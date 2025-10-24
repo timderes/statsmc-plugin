@@ -3,7 +3,7 @@ package com.timderes.statsmc.utils;
 import com.google.gson.Gson;
 
 /**
- *
+ * Utility class for converting objects to JSON format.
  */
 public class JsonResponse {
     private static final Gson GSON = new Gson();
