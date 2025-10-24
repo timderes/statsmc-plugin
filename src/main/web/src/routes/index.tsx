@@ -1,24 +1,14 @@
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-
-import "./App.css";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
-const queryClient = new QueryClient();
-
-function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <Dashboard />
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
-  );
-}
+export const Route = createFileRoute("/")({
+  component: Dashboard,
+  notFoundComponent: () => {
+    return <>NOT FOUND!</>;
+  },
+});
 
 function Dashboard() {
   const queryClient = useQueryClient();
@@ -69,8 +59,7 @@ function Dashboard() {
           </div>
         ))}
       </div>
+      <TanStackRouterDevtools position="top-right" />
     </div>
   );
 }
-
-export default App;

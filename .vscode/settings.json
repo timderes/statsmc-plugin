@@ -5,5 +5,15 @@
   // "java.jdt.ls.java.home": "C:\\jdk-24",
   "javac-linter.javac": "javac -Dfile.encoding=UTF-8",
   "java.configuration.updateBuildConfiguration": "interactive",
-  "java.compile.nullAnalysis.mode": "automatic"
+  "java.compile.nullAnalysis.mode": "automatic",
+  // See https://tanstack.com/router/latest/docs/framework/react/installation/with-vite
+  "files.readonlyInclude": {
+    "**/routeTree.gen.ts": true
+  },
+  "files.watcherExclude": {
+    "**/routeTree.gen.ts": true
+  },
+  "search.exclude": {
+    "**/routeTree.gen.ts": true
+  }
 }
