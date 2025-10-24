@@ -10,7 +10,8 @@
     "redhat.java",
     "vscjava.vscode-maven",
     "vscjava.vscode-java-dependency",
-    "vscjava.vscode-java-test"
+    "vscjava.vscode-java-test",
+    "hossaini.bootstrap-intellisense"
   ],
   "unwantedRecommendations": []
 }

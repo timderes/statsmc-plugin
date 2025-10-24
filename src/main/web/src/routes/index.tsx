@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { IconCloudRain, IconCloudStorm, IconSun } from "@tabler/icons-react";
@@ -75,9 +75,20 @@ function Dashboard() {
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error: {error.message}</div>;
 
+  const currentPlayers = serverInfo?.worlds
+    .map((world) => world.current_players.length)
+    .reduce((a, b) => a + b, 0);
+
   return (
     <>
-      <h1 className="fw-bold">"{serverInfo?.server_name}" Dashboard</h1>
+      <h1 className="fw-bold w-100 d-flex align-items-center justify-content-between">
+        Server "{serverInfo?.server_name}"{" "}
+        <span className="badge text-bg-primary">
+          {currentPlayers + "/" + serverInfo?.max_players}{" "}
+          <small className="fs-6 fw-normal text-uppercase">Players</small>
+        </span>
+      </h1>
+      <p className="lead">{serverInfo?.motd}</p>
       <CardGroup>
         {serverInfo?.worlds.map((world) => (
           <Card body key={world.name}>
@@ -90,7 +101,9 @@ function Dashboard() {
             </p>
             <ul>
               {world.current_players.map((player) => (
-                <li key={player}>{player}</li>
+                <li key={player}>
+                  <Link to={`/player/${player}`}>{player}</Link>
+                </li>
               ))}
             </ul>
           </Card>

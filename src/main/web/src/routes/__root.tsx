@@ -9,17 +9,18 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <>
+      <title>MC Stats</title>
       <Navbar expand="lg" className="bg-body-tertiary mb-4">
         <Container>
-          <Navbar.Brand href="#home">React-Bootstrap</Navbar.Brand>
+          <Navbar.Brand href="#home">MC Stats</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
               <Nav.Link as={Link} activeOptions={{ exact: true }} to="/">
                 Home
               </Nav.Link>
-              <Nav.Link as={Link} to="/player">
-                Player
+              <Nav.Link as={Link} to="/players">
+                Players
               </Nav.Link>
             </Nav>
           </Navbar.Collapse>
