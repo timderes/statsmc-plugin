@@ -39,6 +39,8 @@ Currently the plugin only officially supports Minecraft 1.21.x. However, it may 
 
 ## Building from Source
 
+Anything in `src/main/java` is the backend plugin code, and anything in `src/web` is the frontend web interface code.
+
 ### Prerequisites
 
 - [Java Development Kit](https://www.oracle.com/java/technologies/downloads/)
@@ -48,7 +50,14 @@ Currently the plugin only officially supports Minecraft 1.21.x. However, it may 
 To build the plugin from source
 
 ```bash
-mvn package
+# Build both parts and bundle it into a JAR file
+npm run build
+
+# Or you can just build the JAR file (With the current frontend build)
+npm run build:jar
+
+# Or just build the frontend
+npm run build:web
 ```
 
 ## Active the plugin on your server
