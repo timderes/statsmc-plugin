@@ -53,9 +53,16 @@ public class PlayerStatsHandler extends BaseHandler {
     // TODO: Move to utility class
     private Map<String, Object> getPlayerStatistics(OfflinePlayer player) {
 
-        Map<String, Object> basicPlayerInfo = Map.of("name", player.getName(), "uuid", player.getUniqueId().toString(),
-                "is_online", player.isOnline(), "current_world",
-                player.isOnline() ? player.getPlayer().getWorld().getName() : null);
+        Map<String, Object> basicPlayerInfo = new java.util.HashMap<>();
+        basicPlayerInfo.put("name", player.getName());
+        basicPlayerInfo.put("uuid", player.getUniqueId() != null ? player.getUniqueId().toString() : null);
+        basicPlayerInfo.put("is_online", player.isOnline());
+
+        String currentWorld = null;
+        if (player.isOnline() && player.getPlayer() != null && player.getPlayer().getWorld() != null) {
+            currentWorld = player.getPlayer().getWorld().getName();
+        }
+        basicPlayerInfo.put("current_world", currentWorld);
 
         Map<String, Object> statistics = new java.util.HashMap<>();
         for (Statistic stat : Statistic.values()) {
