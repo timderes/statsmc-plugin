@@ -6,10 +6,8 @@ import com.timderes.statsmc.utils.JsonResponse;
 import com.timderes.statsmc.utils.QueryStringToMap;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Statistic;
-import org.bukkit.entity.EntityType;
 
 import java.io.IOException;
 import java.util.Map;
@@ -33,79 +31,16 @@ public class PlayerStatsHandler extends BaseHandler {
                 return;
             }
 
-            Bukkit.getLogger().info("Fetching all statistics for player: " + playerName);
-
-            StringBuilder json = new StringBuilder();
-            json.append("{");
-
-            // Basic player info
-            json.append("\"name\":\"").append(escape(player.getName())).append("\",");
-            json.append("\"uuid\":\"").append(player.getUniqueId()).append("\",");
-            json.append("\"online\":").append(player.isOnline()).append(",");
-
-            // Stats
-            json.append("\"statistics\":{");
-
-            boolean firstStat = true;
-            for (Statistic stat : Statistic.values()) {
-                try {
-                    StringBuilder statJson = new StringBuilder();
-
-                    switch (stat.getType()) {
-                    case UNTYPED:
-                        int value = player.getStatistic(stat);
-                        if (value == 0)
-                            continue;
-                        statJson.append(value);
-                        break;
-
-                    /*
-                     * case BLOCK: statJson.append("{"); boolean firstBlock = true; for (Material
-                     * material : Material.values()) { if (!material.isBlock()) continue; try { int
-                     * blockValue = player.getStatistic(stat, material); if (blockValue == 0)
-                     * continue; if (!firstBlock) statJson.append(",");
-                     * statJson.append("\"").append(escape(material.name())).append("\":").append(
-                     * blockValue); firstBlock = false; } catch (IllegalArgumentException ignored) {
-                     * } } statJson.append("}"); if (statJson.toString().equals("{}")) continue;
-                     * break; case ITEM: statJson.append("{"); boolean firstItem = true; for
-                     * (Material material : Material.values()) { if (!material.isItem()) continue;
-                     * try { int itemValue = player.getStatistic(stat, material); if (itemValue ==
-                     * 0) continue; if (!firstItem) statJson.append(",");
-                     * statJson.append("\"").append(escape(material.name())).append("\":").append(
-                     * itemValue); firstItem = false; } catch (IllegalArgumentException ignored) { }
-                     * } statJson.append("}"); if (statJson.toString().equals("{}")) continue;
-                     * break; case ENTITY: statJson.append("{"); boolean firstEntity = true; for
-                     * (EntityType entityType : EntityType.values()) { try { int entityValue =
-                     * player.getStatistic(stat, entityType); if (entityValue == 0) continue; if
-                     * (!firstEntity) statJson.append(",");
-                     * statJson.append("\"").append(escape(entityType.name())).append("\":")
-                     * .append(entityValue); firstEntity = false; } catch (IllegalArgumentException
-                     * ignored) { } } statJson.append("}"); if (statJson.toString().equals("{}"))
-                     * continue; break;
-                     */
-                    }
-
-                    if (!firstStat)
-                        json.append(",");
-                    json.append("\"").append(escape(stat.name())).append("\":").append(statJson);
-                    firstStat = false;
-
-                } catch (Exception e) {
-                    Bukkit.getLogger().warning("Error reading stat " + stat.name() + ": " + e.getMessage());
-                }
-            }
-
-            json.append("}"); // end statistics
-            json.append("}"); // end root
-
-            JsonResponse.toJson(json.toString());
+            Map<String, Object> stats = getPlayerStatistics(player);
+            sendResponse(exchange, 200, JsonResponse.toJson(stats));
 
         } catch (Exception e) {
-            Bukkit.getLogger().severe("Error fetching player stats: " + e.getMessage());
-            sendError(exchange, 500, "Internal server error");
+            sendError(exchange, 500, "Internal Server Error");
+            e.printStackTrace();
         }
     }
 
+    // TODO: Move to utility class
     private OfflinePlayer findPlayerByName(String name) {
         for (OfflinePlayer p : Bukkit.getOfflinePlayers()) {
             if (p.getName() != null && p.getName().equalsIgnoreCase(name)) {
@@ -115,10 +50,24 @@ public class PlayerStatsHandler extends BaseHandler {
         return null;
     }
 
-    // Simple JSON string escaper
-    private String escape(String s) {
-        if (s == null)
-            return "";
-        return s.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r");
+    // TODO: Move to utility class
+    private Map<String, Object> getPlayerStatistics(OfflinePlayer player) {
+
+        Map<String, Object> basicPlayerInfo = Map.of("name", player.getName(), "uuid", player.getUniqueId().toString(),
+                "is_online", player.isOnline(), "current_world",
+                player.isOnline() ? player.getPlayer().getWorld().getName() : null);
+
+        Map<String, Object> statistics = new java.util.HashMap<>();
+        for (Statistic stat : Statistic.values()) {
+            try {
+                int value = player.getStatistic(stat);
+                statistics.put(stat.name().toLowerCase(), value);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return Map.of("player", basicPlayerInfo, "statistics", statistics);
     }
+
 }

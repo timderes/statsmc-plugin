@@ -2,10 +2,12 @@ package com.timderes.statsmc.api;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import com.timderes.statsmc.utils.JsonResponse;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 public abstract class BaseHandler implements HttpHandler {
     /**
@@ -28,6 +30,8 @@ public abstract class BaseHandler implements HttpHandler {
      * Sends an error response with the given status code and error message.
      */
     protected void sendError(HttpExchange exchange, int statusCode, String errorMessage) throws IOException {
-        sendResponse(exchange, statusCode, "{\"error\": \"" + errorMessage + "\"}");
+        Map<String, String> errorResponse = Map.of("error", errorMessage);
+
+        sendResponse(exchange, statusCode, JsonResponse.toJson(errorResponse));
     }
 }
