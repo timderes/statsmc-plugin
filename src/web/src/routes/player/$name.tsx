@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { Alert } from "react-bootstrap";
+import { Alert, Badge, Table } from "react-bootstrap";
 
 export const Route = createFileRoute("/player/$name")({
   component: RouteComponent,
@@ -35,6 +35,7 @@ function RouteComponent() {
   } = useQuery<PlayerStats>({
     queryKey: ["playerStats", name],
     queryFn: getPlayerInfo,
+    refetchInterval: 60000, // Refetch every 60 seconds
   });
 
   useEffect(() => {
@@ -45,10 +46,48 @@ function RouteComponent() {
 
   return (
     <>
-      <h1 className="fw-bold">{name}</h1>
+      <header className="vstack gap-3">
+        <h1 className="fw-bold">
+          {name}{" "}
+          <small>
+            <Badge bg={playerStats?.player.is_online ? "primary" : "secondary"}>
+              {playerStats?.player.is_online ? "Online" : "Offline"}
+            </Badge>
+          </small>
+        </h1>
+
+        <p className="fst-italic">
+          {playerStats?.player.current_world
+            ? `Currently playing in "${playerStats.player.current_world}"`
+            : ""}
+        </p>
+      </header>
+
       {isLoading && <p>Loading player stats...</p>}
       {isError && <Alert variant="danger">Error: {error.message}</Alert>}
 
+      <Table>
+        <thead>
+          <tr>
+            <th>Statistic</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          {playerStats ? (
+            Object.entries(playerStats.statistics).map(([key, value]) => (
+              <tr key={key}>
+                <td>{key}</td>
+                <td>{value?.toLocaleString()}</td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={2}>No statistics available</td>
+            </tr>
+          )}
+        </tbody>
+      </Table>
       <pre>{JSON.stringify(playerStats, null, 2)}</pre>
     </>
   );
