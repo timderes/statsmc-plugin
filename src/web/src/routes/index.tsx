@@ -6,6 +6,7 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Card, CardGroup } from "react-bootstrap";
 import WeatherIcon from "../components/shared/WeatherIcon";
 import getTimeOfDay from "../lib/utils/world/getTimeOfDay";
+import { IconSword, IconSwordOff } from "@tabler/icons-react";
 
 export const Route = createFileRoute("/")({
   component: Dashboard,
@@ -36,6 +37,7 @@ function Dashboard() {
   } = useQuery<ServerInfo>({
     queryKey: ["serverInfo"],
     queryFn: getServerInfo,
+    refetchInterval: 25000, // 25 seconds
   });
 
   useEffect(() => {
@@ -53,13 +55,21 @@ function Dashboard() {
 
   return (
     <>
-      <h1 className="fw-bold w-100 d-flex align-items-center justify-content-between">
-        Server "{serverInfo?.server_name}"
-        <span className="badge text-bg-primary">
-          {currentPlayers + "/" + serverInfo?.max_players}
-        </span>
-      </h1>
-      <p className="lead">{serverInfo?.motd}</p>
+      <header>
+        <h1 className="fw-bold w-100 d-flex align-items-center justify-content-between">
+          Server "{serverInfo?.server_name}"
+          <span className="badge text-bg-primary">
+            {currentPlayers + "/" + serverInfo?.max_players}
+          </span>
+        </h1>
+        <p className="lead">{serverInfo?.motd}</p>
+        <div className="d-flex gap-1">
+          <span className="badge text-bg-primary">
+            {serverInfo?.server_version}
+          </span>
+          <span className="badge text-bg-light">{serverInfo?.game_mode}</span>
+        </div>
+      </header>
       <CardGroup>
         {serverInfo?.worlds.map((world) => (
           <Card body key={world.name}>
@@ -82,6 +92,15 @@ function Dashboard() {
                 </li>
               ))}
             </ul>
+            <hr />
+            <div className="hstack justify-content-around">
+              <span>Difficulty: {world.difficulty}</span>
+              <span className="d-flex align-items-center gap-1">
+                PVP {world.pvp ? <IconSword /> : <IconSwordOff />}
+              </span>
+              <span>Animals {world.allow_animals ? "On" : "Off"}</span>
+              <span>Monsters {world.allow_monsters ? "On" : "Off"}</span>
+            </div>
           </Card>
         ))}
       </CardGroup>
