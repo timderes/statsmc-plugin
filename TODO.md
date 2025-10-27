@@ -2,16 +2,28 @@
 
 ## Features
 
-- [ ] Improve the overall code quality and structure of the project.
-- [ ] Implement the web interface for viewing player statistics.
-- [ ] Add more API endpoints for retrieving specific player statistics, blocks, entities, advancements, and leaderboards.
-- [ ] Set build output to the local Minecraft server's plugins folder for easier testing.
+### Web
+
+- [ ] Feature: Implement the web interface for viewing player statistics.
+
+### Backend & API
+
+- [ ] Feature: Add more API endpoints for retrieving more detailed player data.
+
+### Miscellaneous
+
+- [ ] DX: Set build output to the local Minecraft server's plugins folder for easier testing.
+
+### Skins & Heads
+
+- [ ] Feature: Get player skins and avatars from the [mcheads.net API](https://mcheads.net).
+- [ ] Feature: Cache player skins and avatars to reduce API requests.
 
 ## Bugs
 
-- [ ] API requests sometimes take too long to respond or time out.
-- [ ] Sometimes the the frontend responds with a 404 error when trying to access certain pages.
+- [ ] Bug: API requests sometimes take too long to respond or time out.
+- [ ] Bug: Sometimes the the frontend responds with a 404 error when trying to access certain pages.
 
 ## Done
 
-- [x] 2025/10/24 -- Add base api endpoint that returns basic information about the API eg. Version, server status, worlds, players online, ...
+- [x] 2025/10/24 -- Feature: Add base api endpoint that returns basic information about the API eg. Version, server status, worlds, players online, ...

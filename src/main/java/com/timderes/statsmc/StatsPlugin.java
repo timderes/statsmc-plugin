@@ -26,7 +26,7 @@ public class StatsPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         try {
-            StatsServer.stop();
+            StatsServer.stop(consoleLogger);
             consoleLogger.info("StatsMC is successfully disabled!");
         } catch (Exception e) {
             consoleLogger.warning("Failed to stop StatsMC!");
