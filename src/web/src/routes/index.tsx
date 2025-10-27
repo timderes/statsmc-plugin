@@ -78,20 +78,25 @@ function Dashboard() {
               Weather: {WeatherIcon(world.weather)}
             </p>
             <p>Time: {getTimeOfDay(world.time)}</p>
-            <ul>
-              {world.current_players.map((player) => (
-                <li key={player}>
-                  <Link
-                    to={`/player/$name`}
-                    params={{
-                      name: player,
-                    }}
-                  >
-                    {player}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            Current Players:{" "}
+            {world.current_players.length === 0 ? (
+              <span className="fst-italic">None</span>
+            ) : (
+              <ul>
+                {world.current_players.map((player) => (
+                  <li key={player}>
+                    <Link
+                      to={`/player/$name`}
+                      params={{
+                        name: player,
+                      }}
+                    >
+                      {player}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
             <hr />
             <div className="hstack justify-content-around">
               <span>Difficulty: {world.difficulty}</span>
