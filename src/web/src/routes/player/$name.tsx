@@ -75,12 +75,14 @@ function RouteComponent() {
         </thead>
         <tbody>
           {playerStats ? (
-            Object.entries(playerStats.statistics).map(([key, value]) => (
-              <tr key={key}>
-                <td>{key}</td>
-                <td>{value?.toLocaleString()}</td>
-              </tr>
-            ))
+            Object.entries(playerStats?.statistics ?? {}).map(
+              ([key, value]) => (
+                <tr key={key}>
+                  <td>{key}</td>
+                  <td>{value?.toLocaleString()}</td>
+                </tr>
+              )
+            )
           ) : (
             <tr>
               <td colSpan={2}>No statistics available</td>
@@ -88,7 +90,31 @@ function RouteComponent() {
           )}
         </tbody>
       </Table>
-      <pre>{JSON.stringify(playerStats, null, 2)}</pre>
+
+      <Table>
+        <thead>
+          <tr>
+            <th>Block</th>
+            <th>Mined</th>
+          </tr>
+        </thead>
+        <tbody>
+          {playerStats ? (
+            Object.entries(playerStats?.mined_blocks ?? {})
+              .sort(([, a], [, b]) => b - a)
+              .map(([key, value]) => (
+                <tr key={key}>
+                  <td>{key}</td>
+                  <td>{value?.toLocaleString()}</td>
+                </tr>
+              ))
+          ) : (
+            <tr>
+              <td colSpan={2}>No statistics available</td>
+            </tr>
+          )}
+        </tbody>
+      </Table>
     </>
   );
 }
