@@ -82,10 +82,9 @@ function Dashboard() {
   return (
     <>
       <h1 className="fw-bold w-100 d-flex align-items-center justify-content-between">
-        Server "{serverInfo?.server_name}"{" "}
+        Server "{serverInfo?.server_name}"
         <span className="badge text-bg-primary">
-          {currentPlayers + "/" + serverInfo?.max_players}{" "}
-          <small className="fs-6 fw-normal text-uppercase">Players</small>
+          {currentPlayers + "/" + serverInfo?.max_players}
         </span>
       </h1>
       <p className="lead">{serverInfo?.motd}</p>
