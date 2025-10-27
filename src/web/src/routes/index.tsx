@@ -70,7 +70,7 @@ function Dashboard() {
     if (isStale) {
       queryClient.invalidateQueries({ queryKey: ["serverInfo"] });
     }
-  }, []);
+  }, [queryClient, isStale]);
 
   if (isLoading) return <div>Loading...</div>;
   if (isError) return <div>Error: {error.message}</div>;
@@ -102,7 +102,14 @@ function Dashboard() {
             <ul>
               {world.current_players.map((player) => (
                 <li key={player}>
-                  <Link to={`/player/${player}`}>{player}</Link>
+                  <Link
+                    to={`/player/$name`}
+                    params={{
+                      name: player,
+                    }}
+                  >
+                    {player}
+                  </Link>
                 </li>
               ))}
             </ul>

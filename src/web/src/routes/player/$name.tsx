@@ -41,7 +41,7 @@ function RouteComponent() {
     if (isStale) {
       queryClient.invalidateQueries({ queryKey: ["playerStats", name] });
     }
-  }, []);
+  }, [queryClient, isStale, name]);
 
   return (
     <>

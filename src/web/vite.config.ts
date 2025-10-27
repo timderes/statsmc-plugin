@@ -8,7 +8,7 @@ export default defineConfig({
     emptyOutDir: true,
     // This path must match the resource path!
     // @See pom.xml -> ressource web
-    outDir: "../resources/web",
+    outDir: "../main/resources/web",
   },
   root: __dirname,
   // Make sure that '@tanstack/router-plugin' is passed before '@vitejs/plugin-react'
