@@ -2,8 +2,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import { IconCloudRain, IconCloudStorm, IconSun } from "@tabler/icons-react";
+
 import { Card, CardGroup } from "react-bootstrap";
+import WeatherIcon from "../components/shared/WeatherIcon";
+import getTimeOfDay from "../lib/utils/world/getTimeOfDay";
 
 export const Route = createFileRoute("/")({
   component: Dashboard,
@@ -11,36 +13,6 @@ export const Route = createFileRoute("/")({
     return <>NOT FOUND!</>;
   },
 });
-
-const getTimeOfDay = (time: World["time"]) => {
-  switch (true) {
-    case time > 23000:
-      return "Sunrise";
-    case time > 18000:
-      return "Midnight";
-    case time > 13000:
-      return "Night";
-    case time > 12000:
-      return "Sunset";
-    case time > 6000:
-      return "Noon";
-    case time > 2000:
-      return "Day";
-    default:
-      return "Morning";
-  }
-};
-
-const getWeatherIcon = (currentWeather: World["weather"]) => {
-  switch (currentWeather) {
-    case "clear":
-      return <IconSun />;
-    case "rain":
-      return <IconCloudRain />;
-    case "thunder":
-      return <IconCloudStorm />;
-  }
-};
 
 function Dashboard() {
   const queryClient = useQueryClient();
@@ -93,11 +65,9 @@ function Dashboard() {
           <Card body key={world.name}>
             <p className="fs-3 fw-bold">{world.name}</p>
             <p className="d-flex align-items-center gap-1">
-              Weather: {getWeatherIcon(world.weather)}
+              Weather: {WeatherIcon(world.weather)}
             </p>
-            <p>
-              Time: {getTimeOfDay(world.time)} ({world.time})
-            </p>
+            <p>Time: {getTimeOfDay(world.time)}</p>
             <ul>
               {world.current_players.map((player) => (
                 <li key={player}>
