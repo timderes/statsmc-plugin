@@ -3,6 +3,7 @@ package com.timderes.statsmc;
 import com.sun.net.httpserver.HttpServer;
 
 import com.timderes.statsmc.api.handler.RootHandler;
+import com.timderes.statsmc.api.handler.AllPlayersHandler;
 import com.timderes.statsmc.api.handler.PlayerStatsHandler;
 import com.timderes.statsmc.web.WebRootHandler;
 
@@ -35,8 +36,7 @@ public class StatsServer {
             server.createContext("/", new WebRootHandler());
             server.createContext("/api", new RootHandler());
             server.createContext("/api/player", new PlayerStatsHandler());
-            // TODO: Implement this handler later
-            // server.createContext("/api/players", new PlayersHandler())
+            server.createContext("/api/players", new AllPlayersHandler());
 
             server.start();
         } catch (Exception e) {
