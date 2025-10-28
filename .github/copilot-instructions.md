@@ -31,7 +31,7 @@ The codebase follows standard Java coding conventions and best practices. It is 
 
 ### Frontend
 
-The Frontend is currently a work in progress, and will be written in HTML, CSS, and JavaScript. It will provide a user-friendly interface for viewing player statistics and interacting with the API. The Frontend wont support Internet Explorer. Only the latest versions of modern browsers like Chrome, Firefox, Edge, and Safari will be supported.
+The Frontend is currently a work in progress, and will be written in in TypeScript with Vite, Bootstrap 5 with the React-Bootstrap Library, TanStack Router and TanStack Query (to cache and manage the api requests). It will provide a user-friendly interface for viewing player statistics and interacting with the API. The Frontend wont support Internet Explorer. Only the latest versions of modern browsers like Chrome, Firefox, Edge, and Safari will be supported.
 
 ### Mobile Support
 
