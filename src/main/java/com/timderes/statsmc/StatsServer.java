@@ -13,7 +13,14 @@ import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 /**
- * This class provides a simple HTTP server that listens for requests.
+ * This class provides a simple HTTP server that listens for requests. It sets
+ * up various API endpoints and serves the web frontend.
+ * 
+ * @see HttpServer
+ * @see ExecutorService
+ * 
+ * @author Tim Deres
+ * @version 1.0
  */
 public class StatsServer {
     public static HttpServer server = null;
@@ -25,15 +32,22 @@ public class StatsServer {
      */
     public static void start(int port, Logger consoleLogger) throws Exception {
         try {
-            int cpuCores = Runtime.getRuntime().availableProcessors();
-            int threads = Math.max(2, cpuCores * 2); // Why *2?
+            final int CPU_CORES = Runtime.getRuntime().availableProcessors();
+            // Assumes hyper-threading is enabled. Maybe we should find a better way to
+            // determine optimal thread count?
+            final int THREADS = Math.max(1, CPU_CORES * 2);
 
-            httpExecutor = Executors.newFixedThreadPool(threads);
+            httpExecutor = Executors.newFixedThreadPool(THREADS);
 
             server = HttpServer.create(new InetSocketAddress(port), 0);
             server.setExecutor(httpExecutor);
 
+            // FIXME: This probably causes a 404 response, when the user tries to access
+            // a different route directly (e.g. /players). We need to handle this better.
             server.createContext("/", new WebRootHandler());
+
+            // These are the API endpoints
+            // TODO: Check if we can group these under a common handler
             server.createContext("/api", new RootHandler());
             server.createContext("/api/player", new PlayerStatsHandler());
             server.createContext("/api/players", new AllPlayersHandler());
