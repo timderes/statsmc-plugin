@@ -1,7 +1,9 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { Alert, Table } from "react-bootstrap";
+import { Table } from "react-bootstrap";
+import ErrorAlert from "../components/shared/ErrorAlert";
+import LoadingSpinner from "../components/shared/LoadingSpinner";
 
 export const Route = createFileRoute("/players")({
   component: RouteComponent,
@@ -47,66 +49,68 @@ function RouteComponent() {
         <h1 className="fw-bold">Players</h1>
       </header>
 
-      {isLoading && <p>Loading players...</p>}
-      {isError && <Alert variant="danger">Error: {error.message}</Alert>}
+      {isLoading && <LoadingSpinner text="Loading players..." />}
+      {isError && <ErrorAlert message={error.message} />}
 
-      <Table>
-        <thead>
-          <tr>
-            <th>Players</th>
-            <th>Status</th>
-            <th>Current World</th>
-            <th>Last Seen</th>
-            <th>First Joined</th>
-          </tr>
-        </thead>
-        <tbody>
-          {(() => {
-            const players = data?.players ?? [];
+      {isLoading || isError ? null : (
+        <Table>
+          <thead>
+            <tr>
+              <th>Players</th>
+              <th>Status</th>
+              <th>Current World</th>
+              <th>Last Seen</th>
+              <th>First Joined</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(() => {
+              const players = data?.players ?? [];
 
-            if (players.length === 0) {
-              return (
-                <tr>
-                  <td colSpan={5}>No players available</td>
-                </tr>
-              );
-            }
+              if (players.length === 0) {
+                return (
+                  <tr>
+                    <td colSpan={5}>No players available</td>
+                  </tr>
+                );
+              }
 
-            return players
-              .sort((a, b) => b.last_seen - a.last_seen)
-              .map((player) => (
-                <tr key={player.name}>
-                  <td>
-                    {player.name ? (
-                      <Link
-                        to={`/player/$name`}
-                        params={{
-                          name: player.name,
-                        }}
-                      >
-                        {player.name}
-                      </Link>
-                    ) : (
-                      <span className=" fst-italic">Unknown Player</span>
-                    )}
-                  </td>
-                  <td>{player.is_online ? "Online" : "Offline"}</td>
-                  <td>{player.current_world ?? "-"}</td>
-                  <td>
-                    {new Date(
-                      player?.last_seen ?? Date.now()
-                    ).toLocaleString() ?? "-"}
-                  </td>
-                  <td>
-                    {player?.first_joined
-                      ? new Date(player?.first_joined).toLocaleString()
-                      : "?"}
-                  </td>
-                </tr>
-              ));
-          })()}
-        </tbody>
-      </Table>
+              return players
+                .sort((a, b) => b.last_seen - a.last_seen)
+                .map((player) => (
+                  <tr key={player.name}>
+                    <td>
+                      {player.name ? (
+                        <Link
+                          to={`/player/$name`}
+                          params={{
+                            name: player.name,
+                          }}
+                        >
+                          {player.name}
+                        </Link>
+                      ) : (
+                        <span className=" fst-italic">Unknown Player</span>
+                      )}
+                    </td>
+                    <td>{player.is_online ? "Online" : "Offline"}</td>
+                    <td>{player.current_world ?? "-"}</td>
+                    <td>
+                      {new Date(
+                        player?.last_seen ?? Date.now()
+                      ).toLocaleString() ?? "-"}
+                    </td>
+                    <td>
+                      {player?.first_joined
+                        ? new Date(player?.first_joined).toLocaleString()
+                        : "?"}
+                    </td>
+                  </tr>
+                ));
+            })()}
+          </tbody>
+        </Table>
+      )}
     </>
   );
 }

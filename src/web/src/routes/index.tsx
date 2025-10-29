@@ -2,11 +2,12 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-
 import { Card, CardGroup } from "react-bootstrap";
 import WeatherIcon from "../components/shared/WeatherIcon";
 import getTimeOfDay from "../lib/utils/world/getTimeOfDay";
 import { IconSword, IconSwordOff } from "@tabler/icons-react";
+import ErrorAlert from "../components/shared/ErrorAlert";
+import LoadingSpinner from "../components/shared/LoadingSpinner";
 
 export const Route = createFileRoute("/")({
   component: Dashboard,
@@ -46,8 +47,8 @@ function Dashboard() {
     }
   }, [queryClient, isStale]);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error: {error.message}</div>;
+  if (isLoading) return <LoadingSpinner text="Loading Server Information..." />;
+  if (isError) return <ErrorAlert message={error.message} />;
 
   const currentPlayers = serverInfo?.worlds
     .map((world) => world.current_players.length)
