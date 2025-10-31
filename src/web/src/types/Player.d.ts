@@ -9,9 +9,7 @@ type PlayerStats = {
     is_banned: boolean;
     is_op: boolean;
   };
-  statistics?: {
-    [key: string]: number | Record<string, number> | undefined;
-  };
+  statistics: Partial<Record<CustomStatistic, number>>;
   mined_blocks?: {
     [material: string]: number;
   };
