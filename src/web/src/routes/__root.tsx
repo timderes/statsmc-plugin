@@ -1,6 +1,7 @@
 import { Link, Outlet, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Container, Nav, Navbar, Stack } from "react-bootstrap";
+import ColorschemeToggle from "../components/navbar/ColorschemeToggle";
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -17,7 +18,7 @@ function RootComponent() {
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="me-auto">
+            <Nav className="me-auto w-100">
               <Nav.Link
                 as={Link}
                 activeProps={{
@@ -29,6 +30,7 @@ function RootComponent() {
                 Dashboard
               </Nav.Link>
               <Nav.Link
+                className="me-auto"
                 as={Link}
                 activeProps={{
                   className: "fw-bold",
@@ -37,6 +39,7 @@ function RootComponent() {
               >
                 Players
               </Nav.Link>
+              <ColorschemeToggle />
             </Nav>
           </Navbar.Collapse>
         </Container>
